@@ -1,42 +1,98 @@
-🚴‍♂️ MyWhoosh Bluetooth Smart Steering (ESP32-WROOM-32)
-Questo progetto trasforma una scheda ESP32-WROOM-32 e un sensore MPU6050 in un sistema di sterzata intelligente per MyWhoosh (o Zwift). A differenza dei sistemi basati sull'angolo statico, questo dispositivo rileva l'impulso cinematico (un colpo secco dello sterzo), eliminando i problemi di deriva dei sensori economici e rendendo l'esperienza di gioco fluida e reattiva.
-🌟 Caratteristiche principali
-Zero Drift Technology: Utilizza la velocità angolare (Giroscopio Z) per rilevare il movimento. Non importa se il sensore "scivola" nel tempo, risponderà sempre solo ai tuoi comandi reali.
-Modalità Burst (Raffica): Un singolo colpo di sterzo fisico invia una sequenza di 5 pressioni tasto (frecce direzionali) ogni 200ms, simulando una sterzata decisa e naturale nel software.
-Connessione Bluetooth HID: Riconosciuto dal PC/Tablet come una tastiera standard. Nessun driver o software aggiuntivo necessario.
-Bassa Sensibilità Calibrata: Ottimizzato per ignorare le vibrazioni del rullo e i movimenti involontari durante lo sforzo intenso.
-Feedback Visivo: Due LED indicano in tempo reale l'attivazione della sterzata a destra o sinistra.
-🛠 Hardware necessario
-Componente	Descrizione
-ESP32-WROOM-32	Microcontrollore con Bluetooth integrato
-MPU6050	Accelerometro e Giroscopio a 6 assi
-2x LED	Feedback visivo (es. Rosso per DX, Verde per SX)
-2x Resistenze 220Ω	Per i LED
-Cavi Jumper	Per i collegamenti
-🔌 Collegamenti (Pinout)
-MPU6050	ESP32 Pin	Note
-VCC	3.3V	Alimentazione stabile
-GND	GND	Terra comune
-SCL	GPIO 22	Bus I2C
-SDA	GPIO 21	Bus I2C
-AD0	GND	Forza indirizzo I2C 0x68
-LED	ESP32 Pin	Note
-LED SX	GPIO 18	Attivo durante sterzata a sinistra
-LED DX	GPIO 19	Attivo durante sterzata a destra
-💻 Requisiti Software
-Arduino IDE (Versione 1.8.19 o superiore)
-Core ESP32 di Espressif (Versione 3.0.7 o superiore)
-Librerie richieste:
-MPU6050_light (di rfetick)
-ESP32-BLE-Keyboard (di T-vK) con correzione .c_str() per Core 3.x
-🚀 Istruzioni per l'uso
-Montaggio: Fissa l'ESP32 e il sensore al centro del manubrio della tua bicicletta. Assicurati che il sensore sia ben saldo per evitare vibrazioni eccessive.
-Calibrazione: All'accensione, tieni il manubrio fermo per 2 secondi. I LED lampeggeranno per indicare che la calibrazione degli offset è completata.
-Pairing: Cerca "MyWhoosh Steering" nelle impostazioni Bluetooth del tuo dispositivo e connettiti.
-In Gioco: Mentre pedali su MyWhoosh, dai un colpo deciso a destra o sinistra per cambiare traiettoria. Il sistema invierà automaticamente una raffica di 5 impulsi per garantire il cambio di corsia.
-🔧 Parametri Personalizzabili
-Nel codice puoi regolare i seguenti valori per adattarli al tuo stile:
-SOGLIA_VELOCITA: Aumenta (es. 100) per rendere lo sterzo ancora meno sensibile.
-NUM_IMPULSI: Cambia il numero di tasti inviati per ogni sterzata.
-INTERVALLO_RAFFICA: Modifica la velocità della sterzata virtuale.
-Progetto sviluppato per la community ciclistica virtuale - Gennaio 2026
+<h1 align="center">🚴‍♂️ MyWhoosh Bluetooth Smart Steering</h1>
+
+<p align="center">
+  <img src="img.shields.io" alt="ESP32">
+  <img src="img.shields.io" alt="Bluetooth HID">
+  <img src="img.shields.io" alt="Status">
+</p>
+
+<p align="center">
+  <strong>Trasforma il tuo manubrio in un controller intelligente per MyWhoosh, Zwift e simulatori di ciclismo.</strong>
+  <br>
+  Elimina la deriva del sensore grazie alla tecnologia a impulsi cinetici.
+</p>
+
+<hr>
+
+<h2>🌟 Caratteristiche Principali</h2>
+<ul>
+  <li><strong>Tecnologia Anti-Deriva:</strong> Utilizza la velocità angolare (Giroscopio Z) per reagire solo ai movimenti bruschi. Ignora la deriva termica tipica dei sensori MPU6050.</li>
+  <li><strong>Modalità Raffica (Burst 5x):</strong> Un singolo colpo fisico invia una sequenza di 50 impulsi (frecce direzionali) ogni 50ms per una sterzata fluida in gioco.</li>
+  <li><strong>Bassa Sensibilità Calibrata:</strong> Ottimizzato per filtrare le vibrazioni del rullo e i movimenti involontari durante il fuorisella.</li>
+  <li><strong>Feedback Visivo:</strong> 2 LED integrati per confermare l'invio dei comandi a destra e sinistra.</li>
+</ul>
+
+<h2>🛠️ Hardware Necessario</h2>
+<table width="100%">
+  <tr>
+    <th>Componente</th>
+    <th>Quantità</th>
+    <th>Funzione</th>
+  </tr>
+  <tr>
+    <td><b>ESP32-WROOM-32</b></td>
+    <td>1</td>
+    <td>Microcontrollore con Bluetooth HID</td>
+  </tr>
+  <tr>
+    <td><b>MPU6050 (GY-521)</b></td>
+    <td>1</td>
+    <td>Accelerometro + Giroscopio</td>
+  </tr>
+  <tr>
+    <td><b>LED</b></td>
+    <td>2</td>
+    <td>Feedback SX (Verde) / DX (Rosso)</td>
+  </tr>
+  <tr>
+    <td><b>Resistenze 220Ω</b></td>
+    <td>2</td>
+    <td>Protezione LED</td>
+  </tr>
+</table>
+
+<h2>🔌 Schema di Collegamento</h2>
+<pre>
+<b>MPU6050</b>      <b>ESP32 Pin</b>
+VCC     -->  3.3V
+GND     -->  GND
+SCL     -->  GPIO 22
+SDA     -->  GPIO 21
+AD0     -->  GND (Indirizzo 0x68)
+
+<b>LED</b>          <b>ESP32 Pin</b>
+LED SX  -->  GPIO 18
+LED DX  -->  GPIO 19
+</pre>
+
+<h2>💻 Requisiti Software</h2>
+<p>Il progetto è testato con <b>Arduino ESP32 Core v3.0.7</b> o superiore (Gennaio 2026). Richiede le seguenti librerie:</p>
+<ul>
+  <li><a href="github.com">MPU6050_light</a> (rfetick)</li>
+  <li><a href="github.com">ESP32-BLE-Keyboard</a> (T-vK)</li>
+</ul>
+
+<blockquote>
+  <b>⚠️ NOTA PER IL 2026:</b> Se ricevi l'errore <i>"cannot convert std::string to String"</i>, correggi il file <code>BleKeyboard.cpp</code> aggiungendo <code>.c_str()</code> alle chiamate <code>init()</code> e <code>setValue()</code>.
+</blockquote>
+
+<h2>🚀 Guida Rapida</h2>
+<ol>
+  <li>Carica lo sketch tramite Arduino IDE selezionando <b>"ESP32 Dev Module"</b>.</li>
+  <li>Fissa il sensore al centro del manubrio in modo stabile.</li>
+  <li>All'accensione, tieni il manubrio fermo per 2 secondi (calibrazione automatica).</li>
+  <li>Associa il dispositivo al PC/Tablet cercando <b>"MyWhoosh Steering"</b> nelle impostazioni Bluetooth.</li>
+  <li>In gioco, dai un colpo deciso a sinistra o destra per cambiare traiettoria.</li>
+</ol>
+
+<h2>⚙️ Parametri Personalizzabili</h2>
+<p>Puoi regolare la sensibilità modificando queste righe nel codice:</p>
+<code style="background: #333; color: #fff; padding: 5px;">#define SOGLIA_VELOCITA 80.0</code> &nbsp; <i>(Aumenta per meno sensibilità)</i><br>
+<code style="background: #333; color: #fff; padding: 5px;">#define INTERVALLO_RAFFICA 200</code> &nbsp; <i>(Velocità della raffica in ms)</i>
+
+<hr>
+
+<p align="center">
+  Sviluppato per la community dei ciclisti virtuali. <br>
+  Distribuito sotto Licenza MIT.
+</p>
